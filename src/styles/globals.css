@@ -10,3 +10,11 @@ textarea:focus, input:focus {
   box-shadow: 0 0 0 0;
   outline: 0;
 }
+
+button {
+  border: solid #fff;
+  padding: 0.50rem;
+  border-radius: 8px;
+  background-color: aquamarine;
+  cursor: pointer;
+}

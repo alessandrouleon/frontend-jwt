@@ -16,7 +16,8 @@ type SignInCredentials = {
 }
 
 type AuthContextData = {
-    signIn(credentials: SignInCredentials): Promise<void>;
+    signIn: (credentials: SignInCredentials) => Promise<void>;
+    signOut: () => void;
     user: User;
     isAuthenticated: boolean;
 }
@@ -27,9 +28,15 @@ type AuthProviderProps = {
 
 export const AuthContext = createContext({} as AuthContextData);
 
+// Connection to a broadcast channel
+let authChannel: BroadcastChannel;
+
 export function signOut() {
     destroyCookie(undefined, 'nextauth.token');
     destroyCookie(undefined, 'nextauth.refreshToken');
+
+     authChannel.postMessage('signOut');
+
     Router.push('/');
 };
 
@@ -39,15 +46,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const isAuthenticated = !!user;
 
     useEffect(() => {
+        // Connection to a broadcast channel
+        authChannel = new BroadcastChannel('auth');
+        authChannel.onmessage = (message) => {
+            switch (message.data) {
+                case 'signOut':
+                default:
+                    break;
+            }
+        }
+    }, []);
+
+    useEffect(() => {
         const { 'nextauth.token': token } = parseCookies();
         if (token) {
             api.get('/me').then(response => {
                 const { email, permissions, roles } = response.data;
                 setUser({ email, permissions, roles });
             })
-            .catch(() => {
-                signOut();
-            });
+                .catch(() => {
+                    signOut();
+                });
         }
     }, []);
 
@@ -76,7 +95,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             api.defaults.headers['Authorization'] = `Bearer${token}`;
 
-            Router.push('/Dashboard');
+            Router.push('/dashboard');
 
         } catch (err) {
             console.log(err);
@@ -85,7 +104,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     return (
-        <AuthContext.Provider value={{ signIn, isAuthenticated, user }}>
+        <AuthContext.Provider value={{ signIn, signOut, isAuthenticated, user }}>
             {children}
         </AuthContext.Provider>
     );

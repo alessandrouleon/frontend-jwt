@@ -10,7 +10,7 @@ export function withSSRGest<P>(fn: GetServerSideProps<P>) {
         if (cookies['nextauth.token']) {
             return {
                 redirect: {
-                    destination: '/Dashboard',
+                    destination: '/dashboard',
                     permanent: false
                 }
             }
