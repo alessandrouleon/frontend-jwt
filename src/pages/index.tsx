@@ -2,6 +2,7 @@
 import styles from '@/styles/Home.module.css'
 import { FormEvent, useContext, useState } from 'react'
 import { AuthContext } from '@/contexts/AuthContext';
+import { withSSRGest } from '@/utils/withSSRGest';
 
 
 export default function Home() {
@@ -23,19 +24,19 @@ export default function Home() {
 
 
 
-const onFinish = (values: any) => {
-  console.log('Success:', values);
-};
+  const onFinish = (values: any) => {
+    console.log('Success:', values);
+  };
 
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
+  const onFinishFailed = (errorInfo: any) => {
+    console.log('Failed:', errorInfo);
+  };
 
 
   return (
 
-       <form className={styles.container} onSubmit={handleSubmit} >
-       <label className={styles.logo}>Login</label>  
+    <form className={styles.container} onSubmit={handleSubmit} >
+      <label className={styles.logo}>Login</label>
 
       <input
         type="email"
@@ -52,9 +53,11 @@ const onFinishFailed = (errorInfo: any) => {
       />
       <button type='submit'>Entrar</button>
     </form>
-
-  
-   
   )
-
 }
+
+export const getServerSideProps = withSSRGest(async (ctx) => {
+  return {
+    props: {}
+  }
+});
